@@ -28,7 +28,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
-import com.duckduckgo.app.browser.BrowserViewModel.NavigationCommand.LANDING_PAGE
 import com.duckduckgo.app.browser.omnibar.OnBackKeyListener
 import com.duckduckgo.app.global.DuckDuckGoActivity
 import com.duckduckgo.app.global.ViewModelFactory
@@ -66,9 +65,12 @@ class BrowserActivity : DuckDuckGoActivity() {
             it?.let { webView.loadUrl(it) }
         })
 
-        viewModel.navigation.observe(this, Observer {
-            if (it == LANDING_PAGE) {
-                finishActivityAnimated()
+        viewModel.navigation.observe(this, Observer<BrowserViewModel.Navigation> {
+            it?.let {
+                when (it) {
+                    is BrowserViewModel.Navigation.LandingPage -> finishActivityAnimated()
+                    is BrowserViewModel.Navigation.PrivacyDashboard -> startActivity(PrivacyDashboardActivity.intent(this, it.url))
+                }
             }
         })
 
@@ -221,7 +223,7 @@ class BrowserActivity : DuckDuckGoActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.privacy_dashboard -> {
-                launchPrivacyDashboard()
+                viewModel.userRequestedToViewPrivacyDashboard()
                 return true
             }
             R.id.refresh_menu_item -> {
@@ -243,13 +245,6 @@ class BrowserActivity : DuckDuckGoActivity() {
     private fun finishActivityAnimated() {
         clearViewPriorToAnimation()
         supportFinishAfterTransition()
-    }
-
-    private fun launchPrivacyDashboard() {
-        val siteMonitor = viewModel.siteMonitor
-        if (siteMonitor != null) {
-            startActivity(PrivacyDashboardActivity.intent(this, siteMonitor))
-        }
     }
 
     override fun onBackPressed() {

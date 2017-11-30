@@ -22,6 +22,6 @@ interface WebViewClientListener {
     fun loadingStarted()
     fun loadingFinished()
     fun progressChanged(newProgress: Int)
-    fun urlChanged(url: String?)
+    fun urlChanged(url: String)
     fun trackerDetected(event: TrackingEvent)
 }

@@ -57,12 +57,12 @@ class BrowserWebViewClient @Inject constructor(
         return false
     }
 
-    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+    override fun onPageStarted(view: WebView?, url: String, favicon: Bitmap?) {
         webViewClientListener?.loadingStarted()
         webViewClientListener?.urlChanged(url)
     }
 
-    override fun onPageFinished(view: WebView?, url: String?) {
+    override fun onPageFinished(view: WebView?, url: String) {
         webViewClientListener?.loadingFinished()
         webViewClientListener?.urlChanged(url)
     }

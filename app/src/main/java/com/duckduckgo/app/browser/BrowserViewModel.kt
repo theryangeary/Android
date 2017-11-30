@@ -21,6 +21,7 @@ import android.arch.lifecycle.ViewModel
 import com.duckduckgo.app.browser.omnibar.OmnibarEntryConverter
 import com.duckduckgo.app.global.SingleLiveEvent
 import com.duckduckgo.app.sitemonitor.SiteMonitor
+import com.duckduckgo.app.sitemonitor.SiteMonitorRepo
 import com.duckduckgo.app.trackerdetection.model.NetworkTrackers
 import com.duckduckgo.app.trackerdetection.model.TrackingEvent
 import timber.log.Timber
@@ -28,8 +29,14 @@ import timber.log.Timber
 class BrowserViewModel(
         private val queryUrlConverter: OmnibarEntryConverter,
         private val duckDuckGoUrlDetector: DuckDuckGoUrlDetector,
-        private val networkTrackers: NetworkTrackers) :
+        private val networkTrackers: NetworkTrackers,
+        private val siteMonitorRepo: SiteMonitorRepo) :
         WebViewClientListener, ViewModel() {
+
+    sealed class Navigation {
+        class LandingPage : Navigation()
+        class PrivacyDashboard(val url: String) : Navigation()
+    }
 
     data class ViewState(
             val isLoading: Boolean = false,
@@ -40,17 +47,14 @@ class BrowserViewModel(
             val showClearButton: Boolean = false
     )
 
+
     /* Observable data for Activity to subscribe to */
     val viewState: MutableLiveData<ViewState> = MutableLiveData()
+    val navigation: MutableLiveData<Navigation> = MutableLiveData()
     val query: SingleLiveEvent<String> = SingleLiveEvent()
-    val navigation: SingleLiveEvent<NavigationCommand> = SingleLiveEvent()
-
-    enum class NavigationCommand {
-        LANDING_PAGE
-    }
 
     private var lastQuery: String? = null
-    var siteMonitor: SiteMonitor? = null
+    private var siteMonitor: SiteMonitor? = null
 
     init {
         viewState.value = ViewState()
@@ -86,7 +90,6 @@ class BrowserViewModel(
     override fun loadingStarted() {
         Timber.v("Loading started")
         viewState.value = currentViewState().copy(isLoading = true)
-        siteMonitor = SiteMonitor(networkTrackers)
     }
 
     override fun loadingFinished() {
@@ -94,7 +97,7 @@ class BrowserViewModel(
         viewState.value = currentViewState().copy(isLoading = false)
     }
 
-    override fun urlChanged(url: String?) {
+    override fun urlChanged(url: String) {
         Timber.v("Url changed: $url")
         var newViewState = currentViewState().copy(url = url, browserShowing = true)
 
@@ -102,7 +105,11 @@ class BrowserViewModel(
             newViewState = newViewState.copy(url = lastQuery)
         }
         viewState.value = newViewState
-        siteMonitor?.url = url
+
+        siteMonitor = SiteMonitor(url, networkTrackers)
+        siteMonitor?.let {
+            siteMonitorRepo.registerSite(url, it)
+        }
     }
 
     override fun trackerDetected(event: TrackingEvent) {
@@ -132,10 +139,14 @@ class BrowserViewModel(
      */
     fun userDismissedKeyboard(): Boolean {
         if (!currentViewState().browserShowing) {
-            navigation.value = NavigationCommand.LANDING_PAGE
+            navigation.value = Navigation.LandingPage()
             return true
         }
         return false
+    }
+
+    fun userRequestedToViewPrivacyDashboard() {
+        currentViewState().url?.let { navigation.value = Navigation.PrivacyDashboard(it) }
     }
 
 }

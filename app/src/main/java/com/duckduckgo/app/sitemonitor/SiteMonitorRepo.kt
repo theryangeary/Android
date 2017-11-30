@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package com.duckduckgo.app.privacydashboard
+package com.duckduckgo.app.sitemonitor
 
-import android.arch.lifecycle.ViewModel
-import com.duckduckgo.app.sitemonitor.SiteMonitorRepo
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
+class SiteMonitorRepo @Inject constructor() {
 
-class PrivacyDashboardViewModel @Inject constructor(private val repo: SiteMonitorRepo) : ViewModel() {
+    private val siteMonitors : HashMap<String, SiteMonitor> = HashMap()
+
+    fun registerSite(url: String, siteMonitor: SiteMonitor) {
+        siteMonitors.put(url, siteMonitor)
+    }
+
+    fun get(url: String) : SiteMonitor? = siteMonitors[url]
 
 }

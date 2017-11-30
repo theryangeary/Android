@@ -16,7 +16,6 @@
 
 package com.duckduckgo.app.privacydashboard
 
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
@@ -29,6 +28,7 @@ import com.duckduckgo.app.global.ViewModelFactory
 import com.duckduckgo.app.sitemonitor.SiteMonitor
 import kotlinx.android.synthetic.main.activity_privacy_dashboard.*
 import kotlinx.android.synthetic.main.content_privacy_dashboard.*
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -38,9 +38,11 @@ class PrivacyDashboardActivity : DuckDuckGoActivity() {
 
     companion object {
 
-        fun intent(context: Context, monitor: SiteMonitor): Intent {
+        private const val URL_KEY = "url"
+
+        fun intent(context: Context, url: String): Intent {
             val intent = Intent(context, PrivacyDashboardActivity::class.java)
-            intent.putExtra(SiteMonitor::class.java.name, monitor)
+            intent.putExtra(URL_KEY, url)
             return intent
         }
     }
@@ -54,9 +56,9 @@ class PrivacyDashboardActivity : DuckDuckGoActivity() {
             loadIntentData()
         }
 
-        viewModel.liveSiteMonitor.observe(this, Observer<SiteMonitor> {
-            it?.let { render(it) }
-        })
+//        viewModel.liveSiteMonitor.observe(this, Observer<SiteMonitor> {
+//            it?.let { render(it) }
+//        })
     }
 
     private val viewModel: PrivacyDashboardViewModel by lazy {
@@ -69,10 +71,8 @@ class PrivacyDashboardActivity : DuckDuckGoActivity() {
     }
 
     private fun loadIntentData() {
-        val siteMonitor = intent.getSerializableExtra(SiteMonitor::class.java.name) as SiteMonitor?
-        if (siteMonitor != null) {
-            viewModel.attachSiteMonitor(siteMonitor)
-        }
+        val url = intent.getStringExtra(URL_KEY)
+        //viewModel.attachSiteMonitor(url)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -86,6 +86,7 @@ class PrivacyDashboardActivity : DuckDuckGoActivity() {
     }
 
     private fun render(siteMonitor: SiteMonitor) {
+        Timber.i("Got another one. Got ${siteMonitor.trackerCount} now")
         domain.text = Uri.parse(siteMonitor.url).host
         trackerNetworksText.text = getString(R.string.trackerNetworksBlocked, siteMonitor.trackerNetworkCount.toString())
     }
