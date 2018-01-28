@@ -19,6 +19,7 @@ package com.duckduckgo.app.privacymonitor.store
 
 import android.arch.lifecycle.MutableLiveData
 import com.duckduckgo.app.privacymonitor.PrivacyMonitor
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,12 +27,14 @@ import javax.inject.Singleton
 @Singleton
 class PrivacyMonitorRepository @Inject constructor() {
 
-    /**
-     * Note: When we add tabs we will have multiple browsers and need multiple
-     * version of this. We could swap this for a map of live data objects
-     * using a guid as a key. The Browser/TabActivity could share the key
-     * with the PrivacyDashboardActivity via the the intent bundle
-     */
-    val privacyMonitor: MutableLiveData<PrivacyMonitor> = MutableLiveData()
+    private val privacyMonitors: LinkedHashMap<String, MutableLiveData<PrivacyMonitor>> = LinkedHashMap()
+
+    fun add(key: String, monitor: MutableLiveData<PrivacyMonitor>) {
+        privacyMonitors[key] = monitor
+    }
+
+    fun get(key: String): MutableLiveData<PrivacyMonitor> {
+        return privacyMonitors[key]!!
+    }
 
 }

@@ -46,6 +46,7 @@ import com.duckduckgo.app.browser.omnibar.OnBackKeyListener
 import com.duckduckgo.app.global.DuckDuckGoActivity
 import com.duckduckgo.app.global.ViewModelFactory
 import com.duckduckgo.app.global.view.*
+import com.duckduckgo.app.home.HomeActivity
 import com.duckduckgo.app.privacymonitor.model.PrivacyGrade
 import com.duckduckgo.app.privacymonitor.renderer.icon
 import com.duckduckgo.app.privacymonitor.ui.PrivacyDashboardActivity
@@ -110,6 +111,7 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener {
             enableMenuOption(view.forwardPopupMenuItem) { webView.goForward() }
             enableMenuOption(view.backPopupMenuItem) { webView.goBack() }
             enableMenuOption(view.refreshPopupMenuItem) { webView.reload() }
+            enableMenuOption(view.newTabPopupMenuItem) { launchNewTab() }
             enableMenuOption(view.bookmarksPopupMenuItem) { launchBookmarks() }
             enableMenuOption(view.addBookmarksPopupMenuItem) { addBookmark() }
             enableMenuOption(view.settingsPopupMenuItem) { launchSettings() }
@@ -384,7 +386,7 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener {
     }
 
     private fun launchPrivacyDashboard() {
-        startActivityForResult(PrivacyDashboardActivity.intent(this), DASHBOARD_REQUEST_CODE)
+        startActivityForResult(PrivacyDashboardActivity.intent(this, viewModel.monitorKey), DASHBOARD_REQUEST_CODE)
     }
 
     private fun launchFire() {
@@ -407,6 +409,10 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener {
         )
 
         addBookmarkDialog.show(supportFragmentManager, ADD_BOOKMARK_FRAGMENT_TAG)
+    }
+
+    fun launchNewTab() {
+        startActivity(HomeActivity.launchNewTab(this))
     }
 
     private fun launchSettings() {

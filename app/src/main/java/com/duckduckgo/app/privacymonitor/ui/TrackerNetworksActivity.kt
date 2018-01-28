@@ -39,11 +39,12 @@ class TrackerNetworksActivity : DuckDuckGoActivity() {
     private val trackersRenderer = TrackersRenderer()
     private val networksAdapter = TrackerNetworksAdapter()
 
+    private val viewModel: TrackerNetworksViewModel by lazy {
+        ViewModelProviders.of(this, viewModelFactory).get(TrackerNetworksViewModel::class.java)
+    }
 
-    companion object {
-        fun intent(context: Context): Intent {
-            return Intent(context, TrackerNetworksActivity::class.java)
-        }
+    private val monitorKey: String by lazy {
+        intent.getStringExtra(MONITOR_KEY)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,13 +57,9 @@ class TrackerNetworksActivity : DuckDuckGoActivity() {
             it?.let { render(it) }
         })
 
-        repository.privacyMonitor.observe(this, Observer<PrivacyMonitor> {
+        repository.get(monitorKey).observe(this, Observer<PrivacyMonitor> {
             viewModel.onPrivacyMonitorChanged(it)
         })
-    }
-
-    private val viewModel: TrackerNetworksViewModel by lazy {
-        ViewModelProviders.of(this, viewModelFactory).get(TrackerNetworksViewModel::class.java)
     }
 
     private fun configureToolbar() {
@@ -80,5 +77,16 @@ class TrackerNetworksActivity : DuckDuckGoActivity() {
         domain.text = viewState.domain
         heading.text = trackersRenderer.networksText(this, viewState.networkCount, viewState.allTrackersBlocked)
         networksAdapter.updateData(viewState.trackingEventsByNetwork)
+    }
+
+    companion object {
+        private const val MONITOR_KEY = "MONITOR_KEY"
+
+        fun intent(context: Context, monitorKey: String): Intent {
+            val intent = Intent(context, TrackerNetworksActivity::class.java)
+            intent.putExtra(MONITOR_KEY, monitorKey)
+            return intent
+
+        }
     }
 }

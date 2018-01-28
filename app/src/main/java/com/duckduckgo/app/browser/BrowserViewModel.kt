@@ -30,6 +30,7 @@ import com.duckduckgo.app.bookmarks.db.BookmarksDao
 import com.duckduckgo.app.browser.BrowserViewModel.Command.Navigate
 import com.duckduckgo.app.browser.omnibar.OmnibarEntryConverter
 import com.duckduckgo.app.global.SingleLiveEvent
+import com.duckduckgo.app.privacymonitor.PrivacyMonitor
 import com.duckduckgo.app.privacymonitor.SiteMonitor
 import com.duckduckgo.app.privacymonitor.db.NetworkLeaderboardDao
 import com.duckduckgo.app.privacymonitor.db.NetworkLeaderboardEntry
@@ -48,6 +49,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class BrowserViewModel(
@@ -92,7 +94,7 @@ class BrowserViewModel(
     val privacyGrade: MutableLiveData<PrivacyGrade> = MutableLiveData()
     val url: SingleLiveEvent<String> = SingleLiveEvent()
     val command: SingleLiveEvent<Command> = SingleLiveEvent()
-
+    val monitorKey = UUID.randomUUID().toString()
 
     @VisibleForTesting
     val appConfigurationObserver: Observer<AppConfigurationEntity> = Observer { appConfiguration ->
@@ -102,17 +104,17 @@ class BrowserViewModel(
         }
     }
 
+    private var appConfigurationDownloaded = false
     private val appConfigurationObservable = appConfigurationDao.appConfigurationStatus()
     private val autoCompletePublishSubject = PublishRelay.create<String>()
-
-    private var siteMonitor: SiteMonitor? = null
-    private var appConfigurationDownloaded = false
+    private val monitorLiveData = MutableLiveData<PrivacyMonitor>()
+    private var monitor: SiteMonitor? = null
 
     init {
         command.value = Command.ShowKeyboard()
         viewState.value = ViewState(canAddBookmarks = false)
         appConfigurationObservable.observeForever(appConfigurationObserver)
-
+        privacyMonitorRepository.add(monitorKey, monitorLiveData)
         configureAutoComplete()
     }
 
@@ -174,7 +176,7 @@ class BrowserViewModel(
     override fun loadingStarted() {
         Timber.v("Loading started")
         viewState.value = currentViewState().copy(isLoading = true)
-        siteMonitor = null
+        monitor = null
         onSiteMonitorChanged()
     }
 
@@ -218,19 +220,19 @@ class BrowserViewModel(
         viewState.value = newViewState
 
         val terms = termsOfServiceStore.retrieveTerms(url) ?: TermsOfService()
-        siteMonitor = SiteMonitor(url, terms, trackerNetworks)
+        monitor = SiteMonitor(url, terms, trackerNetworks)
         onSiteMonitorChanged()
     }
 
     override fun trackerDetected(event: TrackingEvent) {
-        if (event.documentUrl == siteMonitor?.url) {
+        if (event.documentUrl == monitor?.url) {
             updateSiteMonitor(event)
         }
         updateNetworkLeaderboard(event)
     }
 
     private fun updateSiteMonitor(event: TrackingEvent) {
-        siteMonitor?.trackerDetected(event)
+        monitor?.trackerDetected(event)
         onSiteMonitorChanged()
     }
 
@@ -241,15 +243,15 @@ class BrowserViewModel(
     }
 
     override fun pageHasHttpResources(page: String?) {
-        if (page == siteMonitor?.url) {
-            siteMonitor?.hasHttpResources = true
+        if (page == monitor?.url) {
+            monitor?.hasHttpResources = true
             onSiteMonitorChanged()
         }
     }
 
     private fun onSiteMonitorChanged() {
-        privacyGrade.postValue(siteMonitor?.improvedGrade)
-        privacyMonitorRepository.privacyMonitor.postValue(siteMonitor)
+        privacyGrade.postValue(monitor?.improvedGrade)
+        monitorLiveData.postValue(monitor)
     }
 
     private fun currentViewState(): ViewState = viewState.value!!

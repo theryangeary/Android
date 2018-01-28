@@ -42,6 +42,14 @@ class PrivacyPracticesActivity : DuckDuckGoActivity() {
 
     private val practicesAdapter = PrivacyPracticesAdapter()
 
+    private val viewModel: PrivacyPracticesViewModel by lazy {
+        ViewModelProviders.of(this, viewModelFactory).get(PrivacyPracticesViewModel::class.java)
+    }
+
+    private val monitorKey: String by lazy {
+        intent.getStringExtra(MONITOR_KEY)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_privacy_practices)
@@ -52,13 +60,9 @@ class PrivacyPracticesActivity : DuckDuckGoActivity() {
             it?.let { render(it) }
         })
 
-        repository.privacyMonitor.observe(this, Observer<PrivacyMonitor> {
+        repository.get(monitorKey).observe(this, Observer<PrivacyMonitor> {
             viewModel.onPrivacyMonitorChanged(it)
         })
-    }
-
-    private val viewModel: PrivacyPracticesViewModel by lazy {
-        ViewModelProviders.of(this, viewModelFactory).get(PrivacyPracticesViewModel::class.java)
     }
 
     private fun configureToolbar() {
@@ -85,8 +89,12 @@ class PrivacyPracticesActivity : DuckDuckGoActivity() {
 
     companion object {
 
-        fun intent(context: Context): Intent {
-            return Intent(context, PrivacyPracticesActivity::class.java)
+        private const val MONITOR_KEY = "MONITOR_KEY"
+
+        fun intent(context: Context, monitorKey: String): Intent {
+            val intent = Intent(context, PrivacyPracticesActivity::class.java)
+            intent.putExtra(MONITOR_KEY, monitorKey)
+            return intent
         }
     }
 

@@ -149,11 +149,12 @@ class HomeActivity : DuckDuckGoActivity() {
             val intent = Intent(context, HomeActivity::class.java)
             query?.let {
                 intent.putExtra(Intent.EXTRA_TEXT, query)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
             }
             return intent
         }
 
-        fun launchSkipHome(context: Context) : Intent {
+        fun launchNewTab(context: Context) : Intent {
             val intent = intent(context)
             intent.putExtra(KEY_SKIP_HOME, true)
             return intent

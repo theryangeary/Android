@@ -30,8 +30,7 @@
         </activity>
         <activity
             android:name="com.duckduckgo.app.home.HomeActivity"
-            android:label="@string/appName"
-            android:launchMode="singleTask">
+            android:label="@string/appName">
 
             <!-- Allows app to become default browser -->
             <intent-filter>

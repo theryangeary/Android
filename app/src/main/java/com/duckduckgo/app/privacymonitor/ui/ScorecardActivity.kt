@@ -43,10 +43,12 @@ class ScorecardActivity : DuckDuckGoActivity() {
     private val trackersRenderer = TrackersRenderer()
     private val upgradeRenderer = PrivacyUpgradeRenderer()
 
-    companion object {
-        fun intent(context: Context): Intent {
-            return Intent(context, ScorecardActivity::class.java)
-        }
+    private val viewModel: ScorecardViewModel by lazy {
+        ViewModelProviders.of(this, viewModelFactory).get(ScorecardViewModel::class.java)
+    }
+
+    private val monitorKey: String by lazy {
+        intent.getStringExtra(MONITOR_KEY)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,13 +60,9 @@ class ScorecardActivity : DuckDuckGoActivity() {
             it?.let { render(it) }
         })
 
-        repository.privacyMonitor.observe(this, Observer<PrivacyMonitor> {
+        repository.get(monitorKey).observe(this, Observer<PrivacyMonitor> {
             viewModel.onPrivacyMonitorChanged(it)
         })
-    }
-
-    private val viewModel: ScorecardViewModel by lazy {
-        ViewModelProviders.of(this, viewModelFactory).get(ScorecardViewModel::class.java)
     }
 
     private fun configureToolbar() {
@@ -104,6 +102,17 @@ class ScorecardActivity : DuckDuckGoActivity() {
         }
         val drawable = getDrawable(resource)
         setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null)
+    }
+
+    companion object {
+
+        private const val MONITOR_KEY = "MONITOR_KEY"
+
+        fun intent(context: Context, monitorKey: String): Intent {
+            val intent = Intent(context, ScorecardActivity::class.java)
+            intent.putExtra(MONITOR_KEY, monitorKey)
+            return intent
+        }
     }
 
 }

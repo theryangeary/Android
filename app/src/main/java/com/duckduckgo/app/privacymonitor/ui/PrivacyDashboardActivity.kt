@@ -48,6 +48,10 @@ class PrivacyDashboardActivity : DuckDuckGoActivity() {
         ViewModelProviders.of(this, viewModelFactory).get(PrivacyDashboardViewModel::class.java)
     }
 
+    private val monitorKey: String by lazy {
+        intent.getStringExtra(MONITOR_KEY)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_privacy_dashboard)
@@ -57,7 +61,7 @@ class PrivacyDashboardActivity : DuckDuckGoActivity() {
             it?.let { render(it) }
         })
 
-        repository.privacyMonitor.observe(this, Observer<PrivacyMonitor> {
+        repository.get(monitorKey).observe(this, Observer<PrivacyMonitor> {
             viewModel.onPrivacyMonitorChanged(it)
         })
 
@@ -107,15 +111,15 @@ class PrivacyDashboardActivity : DuckDuckGoActivity() {
     }
 
     fun onScorecardClicked() {
-        startActivity(ScorecardActivity.intent(this))
+        startActivity(ScorecardActivity.intent(this, monitorKey))
     }
 
     fun onNetworksClicked(@Suppress("UNUSED_PARAMETER") view: View) {
-        startActivity(TrackerNetworksActivity.intent(this))
+        startActivity(TrackerNetworksActivity.intent(this, monitorKey))
     }
 
     fun onPracticesClicked(@Suppress("UNUSED_PARAMETER") view: View) {
-        startActivity(PrivacyPracticesActivity.intent(this))
+        startActivity(PrivacyPracticesActivity.intent(this, monitorKey))
     }
 
     private fun updateActivityResult(shouldReload: Boolean) {
@@ -129,9 +133,12 @@ class PrivacyDashboardActivity : DuckDuckGoActivity() {
     companion object {
 
         const val RELOAD_RESULT_CODE = 100
+        private const val MONITOR_KEY = "MONITOR_KEY"
 
-        fun intent(context: Context): Intent {
-            return Intent(context, PrivacyDashboardActivity::class.java)
+        fun intent(context: Context, monitorKey: String): Intent {
+            val intent = Intent(context, PrivacyDashboardActivity::class.java)
+            intent.putExtra(MONITOR_KEY, monitorKey)
+            return intent
         }
 
     }
