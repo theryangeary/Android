@@ -119,6 +119,7 @@ class DuckDuckGoApplication : HasActivityInjector, HasServiceInjector, Applicati
                 .subscribe({}, { Timber.w("Failed to download initial app configuration ${it.localizedMessage}") })
     }
 
+
     override fun activityInjector(): AndroidInjector<Activity> = activityInjector
 
     override fun serviceInjector(): AndroidInjector<Service> = serviceInjector

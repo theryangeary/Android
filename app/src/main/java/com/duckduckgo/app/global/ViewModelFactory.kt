@@ -37,6 +37,7 @@ import com.duckduckgo.app.privacymonitor.ui.TrackerNetworksViewModel
 import com.duckduckgo.app.settings.SettingsViewModel
 import com.duckduckgo.app.settings.db.AppConfigurationDao
 import com.duckduckgo.app.settings.db.SettingsDataStore
+import com.duckduckgo.app.tabs.TabsViewModel
 import com.duckduckgo.app.trackerdetection.model.TrackerNetworks
 import javax.inject.Inject
 
@@ -63,6 +64,7 @@ class ViewModelFactory @Inject constructor(
                 when {
                     isAssignableFrom(OnboardingViewModel::class.java) -> OnboardingViewModel(onboaringStore)
                     isAssignableFrom(BrowserViewModel::class.java) -> browserViewModel()
+                    isAssignableFrom(TabsViewModel::class.java) -> TabsViewModel()
                     isAssignableFrom(PrivacyDashboardViewModel::class.java) -> PrivacyDashboardViewModel(privacySettingsStore, networkLeaderboardDao)
                     isAssignableFrom(ScorecardViewModel::class.java) -> ScorecardViewModel(privacySettingsStore)
                     isAssignableFrom(TrackerNetworksViewModel::class.java) -> TrackerNetworksViewModel()

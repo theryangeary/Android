@@ -133,7 +133,7 @@
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/autoCompleteSuggestionsList"
-            android:background="@color/charcoalGrey"
+            android:background="@color/charcoalGray"
             android:layout_width="match_parent"
             android:clipToPadding="false"
             android:layout_height="wrap_content"

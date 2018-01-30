@@ -52,6 +52,7 @@ import com.duckduckgo.app.privacymonitor.model.PrivacyGrade
 import com.duckduckgo.app.privacymonitor.renderer.icon
 import com.duckduckgo.app.privacymonitor.ui.PrivacyDashboardActivity
 import com.duckduckgo.app.settings.SettingsActivity
+import com.duckduckgo.app.tabs.TabsActivity
 import kotlinx.android.synthetic.main.activity_browser.*
 import kotlinx.android.synthetic.main.popup_window_browser_menu.view.*
 import org.jetbrains.anko.doAsync
@@ -112,6 +113,7 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener {
             enableMenuOption(view.forwardPopupMenuItem) { webView.goForward() }
             enableMenuOption(view.backPopupMenuItem) { webView.goBack() }
             enableMenuOption(view.refreshPopupMenuItem) { webView.reload() }
+            enableMenuOption(view.tabsPopupMenuItem) { launchTabs() }
             enableMenuOption(view.newTabPopupMenuItem) { launchNewTab() }
             enableMenuOption(view.bookmarksPopupMenuItem) { launchBookmarks() }
             enableMenuOption(view.addBookmarksPopupMenuItem) { addBookmark() }
@@ -417,7 +419,11 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener {
         addBookmarkDialog.show(supportFragmentManager, ADD_BOOKMARK_FRAGMENT_TAG)
     }
 
-    fun launchNewTab() {
+    private fun launchTabs() {
+        startActivity(TabsActivity.intent(this))
+    }
+
+    private fun launchNewTab() {
         startActivity(HomeActivity.launchNewTab(this))
     }
 

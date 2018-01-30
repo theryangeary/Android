@@ -37,6 +37,8 @@ import kotlinx.android.synthetic.main.popup_window_browser_menu.view.*
 import org.jetbrains.anko.toast
 import javax.inject.Inject
 import javax.inject.Provider
+import com.duckduckgo.app.tabs.TabsActivity
+
 
 class HomeActivity : DuckDuckGoActivity() {
 
@@ -67,6 +69,7 @@ class HomeActivity : DuckDuckGoActivity() {
         popupMenu = BrowserPopupMenu(layoutInflater)
         val view = popupMenu.contentView
         popupMenu.apply {
+            enableMenuOption(view.tabsPopupMenuItem) { launchTabs() }
             enableMenuOption(view.bookmarksPopupMenuItem) { launchBookmarks() }
             enableMenuOption(view.settingsPopupMenuItem) { launchSettings() }
         }
@@ -130,11 +133,15 @@ class HomeActivity : DuckDuckGoActivity() {
         popupMenu.show(rootView, toolbar)
     }
 
-    fun launchBookmarks() {
+    private fun launchTabs() {
+        startActivity(TabsActivity.intent(this))
+    }
+
+    private fun launchBookmarks() {
         startActivity(BookmarksActivity.intent(this))
     }
 
-    fun launchSettings() {
+    private fun launchSettings() {
         startActivity(SettingsActivity.intent(this))
     }
 
@@ -147,9 +154,9 @@ class HomeActivity : DuckDuckGoActivity() {
 
         fun intent(context: Context, query: String? = null): Intent {
             val intent = Intent(context, HomeActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
             query?.let {
                 intent.putExtra(Intent.EXTRA_TEXT, query)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
             }
             return intent
         }
