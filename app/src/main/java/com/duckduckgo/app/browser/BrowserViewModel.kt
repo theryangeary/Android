@@ -57,7 +57,7 @@ class BrowserViewModel(
         private val duckDuckGoUrlDetector: DuckDuckGoUrlDetector,
         private val termsOfServiceStore: TermsOfServiceStore,
         private val trackerNetworks: TrackerNetworks,
-        private val privacyMonitorRepository: PrivacyMonitorRepository,
+        privacyMonitorRepository: PrivacyMonitorRepository,
         private val networkLeaderboardDao: NetworkLeaderboardDao,
         private val bookmarksDao: BookmarksDao,
         private val autoCompleteApi: AutoCompleteApi,

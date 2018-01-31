@@ -18,7 +18,6 @@ package com.duckduckgo.app.browser
 
 import android.graphics.Bitmap
 import android.net.Uri
-import android.support.annotation.AnyThread
 import android.support.annotation.WorkerThread
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -30,7 +29,6 @@ import com.duckduckgo.app.privacymonitor.model.TrustedSites
 import com.duckduckgo.app.trackerdetection.TrackerDetector
 import com.duckduckgo.app.trackerdetection.model.ResourceType
 import timber.log.Timber
-import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
 
 
