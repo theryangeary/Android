@@ -14,27 +14,34 @@
  * limitations under the License.
  */
 
-package com.duckduckgo.app.privacymonitor.store
+package com.duckduckgo.app.tabs
 
 
 import android.arch.lifecycle.MutableLiveData
 import com.duckduckgo.app.privacymonitor.PrivacyMonitor
+import com.duckduckgo.app.privacymonitor.SiteMonitor
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 
 @Singleton
-class PrivacyMonitorRepository @Inject constructor() {
+class TabDataRepository @Inject constructor() {
 
-    private val privacyMonitors: LinkedHashMap<String, MutableLiveData<PrivacyMonitor>> = LinkedHashMap()
+    private val data: LinkedHashMap<String, MutableLiveData<PrivacyMonitor>> = LinkedHashMap()
 
-    fun add(key: String, monitor: MutableLiveData<PrivacyMonitor>) {
-        privacyMonitors[key] = monitor
+    fun get(tabId: String): MutableLiveData<PrivacyMonitor> {
+        val data = data[tabId]
+        if (data == null) {
+            val siteMonitor = MutableLiveData<PrivacyMonitor>()
+            add(tabId, siteMonitor)
+            return siteMonitor
+        }
+        return data
     }
 
-    fun get(key: String): MutableLiveData<PrivacyMonitor> {
-        return privacyMonitors[key]!!
+    private fun add(tabId: String, data: MutableLiveData<PrivacyMonitor>) {
+        this.data[tabId] = data
     }
 
 }

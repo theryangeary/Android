@@ -27,7 +27,7 @@ import com.duckduckgo.app.browser.omnibar.QueryUrlConverter
 import com.duckduckgo.app.onboarding.store.OnboardingStore
 import com.duckduckgo.app.onboarding.ui.OnboardingViewModel
 import com.duckduckgo.app.privacymonitor.db.NetworkLeaderboardDao
-import com.duckduckgo.app.privacymonitor.store.PrivacyMonitorRepository
+import com.duckduckgo.app.tabs.TabDataRepository
 import com.duckduckgo.app.privacymonitor.store.PrivacySettingsSharedPreferences
 import com.duckduckgo.app.privacymonitor.store.TermsOfServiceStore
 import com.duckduckgo.app.privacymonitor.ui.PrivacyDashboardViewModel
@@ -37,26 +37,26 @@ import com.duckduckgo.app.privacymonitor.ui.TrackerNetworksViewModel
 import com.duckduckgo.app.settings.SettingsViewModel
 import com.duckduckgo.app.settings.db.AppConfigurationDao
 import com.duckduckgo.app.settings.db.SettingsDataStore
-import com.duckduckgo.app.tabs.TabsViewModel
+import com.duckduckgo.app.tabs.TabSwitcherViewModel
 import com.duckduckgo.app.trackerdetection.model.TrackerNetworks
 import javax.inject.Inject
 
 
 @Suppress("UNCHECKED_CAST")
 class ViewModelFactory @Inject constructor(
-        private val onboaringStore: OnboardingStore,
-        private val queryUrlConverter: QueryUrlConverter,
-        private val duckDuckGoUrlDetector: DuckDuckGoUrlDetector,
-        private val privacyMonitorRepository: PrivacyMonitorRepository,
-        private val privacySettingsStore: PrivacySettingsSharedPreferences,
-        private val termsOfServiceStore: TermsOfServiceStore,
-        private val trackerNetworks: TrackerNetworks,
-        private val stringResolver: StringResolver,
-        private val appConfigurationDao: AppConfigurationDao,
-        private val networkLeaderboardDao: NetworkLeaderboardDao,
-        private val bookmarksDao: BookmarksDao,
-        private val autoCompleteApi: AutoCompleteApi,
-        private val appSettingsPreferencesStore: SettingsDataStore
+    private val onboaringStore: OnboardingStore,
+    private val queryUrlConverter: QueryUrlConverter,
+    private val duckDuckGoUrlDetector: DuckDuckGoUrlDetector,
+    private val tabRepository: TabDataRepository,
+    private val privacySettingsStore: PrivacySettingsSharedPreferences,
+    private val termsOfServiceStore: TermsOfServiceStore,
+    private val trackerNetworks: TrackerNetworks,
+    private val stringResolver: StringResolver,
+    private val appConfigurationDao: AppConfigurationDao,
+    private val networkLeaderboardDao: NetworkLeaderboardDao,
+    private val bookmarksDao: BookmarksDao,
+    private val autoCompleteApi: AutoCompleteApi,
+    private val appSettingsPreferencesStore: SettingsDataStore
 ) : ViewModelProvider.NewInstanceFactory() {
 
     override fun <T : ViewModel> create(modelClass: Class<T>) =
@@ -64,7 +64,7 @@ class ViewModelFactory @Inject constructor(
                 when {
                     isAssignableFrom(OnboardingViewModel::class.java) -> OnboardingViewModel(onboaringStore)
                     isAssignableFrom(BrowserViewModel::class.java) -> browserViewModel()
-                    isAssignableFrom(TabsViewModel::class.java) -> TabsViewModel()
+                    isAssignableFrom(TabSwitcherViewModel::class.java) -> TabSwitcherViewModel()
                     isAssignableFrom(PrivacyDashboardViewModel::class.java) -> PrivacyDashboardViewModel(privacySettingsStore, networkLeaderboardDao)
                     isAssignableFrom(ScorecardViewModel::class.java) -> ScorecardViewModel(privacySettingsStore)
                     isAssignableFrom(TrackerNetworksViewModel::class.java) -> TrackerNetworksViewModel()
@@ -80,7 +80,7 @@ class ViewModelFactory @Inject constructor(
             duckDuckGoUrlDetector = duckDuckGoUrlDetector,
             termsOfServiceStore = termsOfServiceStore,
             trackerNetworks = trackerNetworks,
-            privacyMonitorRepository = privacyMonitorRepository,
+            tabRepository = tabRepository,
             networkLeaderboardDao = networkLeaderboardDao,
             bookmarksDao = bookmarksDao,
             appSettingsPreferencesStore = appSettingsPreferencesStore,

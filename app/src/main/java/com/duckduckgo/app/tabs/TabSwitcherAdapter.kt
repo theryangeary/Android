@@ -25,32 +25,32 @@ import android.widget.TextView
 import com.duckduckgo.app.browser.R
 import kotlinx.android.synthetic.main.item_tab.view.*
 
-class TabsAdapter(private val itemClickListener: OnItemClickListener) :
-    RecyclerView.Adapter<TabsAdapter.TabViewHolder>() {
+class TabSwitcherAdapter(private val itemClickListener: OnItemClickListener) :
+    RecyclerView.Adapter<TabSwitcherAdapter.TabViewHolder>() {
 
-    private var tabs: List<String> = ArrayList()
+    private var data: List<TabManager.Tab> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): TabViewHolder {
-        var inflator = LayoutInflater.from(parent!!.context)
-        val root = inflator.inflate(R.layout.item_tab, parent, false)
+        var inflater = LayoutInflater.from(parent!!.context)
+        val root = inflater.inflate(R.layout.item_tab, parent, false)
         return TabViewHolder(root, root.favicon, root.title, root.url)
     }
 
     override fun getItemCount(): Int {
-        return tabs.size
+        return data.size
     }
 
     override fun onBindViewHolder(holder: TabViewHolder, position: Int) {
-        val tab = tabs[position]
-        holder.title.text = tab
+        val tab = data[position]
+        holder.title.text = tab.title
+        holder.url.text = tab.url
         holder.root.setOnClickListener {
             itemClickListener.onClicked(position)
         }
-
     }
 
-    fun updateData(data: List<String>) {
-        tabs = data
+    fun updateData(data: List<TabManager.Tab>) {
+        this.data = data
         notifyDataSetChanged()
     }
 

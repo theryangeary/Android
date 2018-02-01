@@ -30,7 +30,8 @@ import com.duckduckgo.app.global.ViewModelFactory
 import com.duckduckgo.app.global.view.html
 import com.duckduckgo.app.privacymonitor.PrivacyMonitor
 import com.duckduckgo.app.privacymonitor.renderer.*
-import com.duckduckgo.app.privacymonitor.store.PrivacyMonitorRepository
+import com.duckduckgo.app.tabs.TabDataRepository
+import com.duckduckgo.app.tabs.tabId
 import kotlinx.android.synthetic.main.content_privacy_scorecard.*
 import kotlinx.android.synthetic.main.include_privacy_dashboard_header.*
 import kotlinx.android.synthetic.main.include_toolbar.*
@@ -39,16 +40,12 @@ import javax.inject.Inject
 class ScorecardActivity : DuckDuckGoActivity() {
 
     @Inject lateinit var viewModelFactory: ViewModelFactory
-    @Inject lateinit var repository: PrivacyMonitorRepository
+    @Inject lateinit var repository: TabDataRepository
     private val trackersRenderer = TrackersRenderer()
     private val upgradeRenderer = PrivacyUpgradeRenderer()
 
     private val viewModel: ScorecardViewModel by lazy {
         ViewModelProviders.of(this, viewModelFactory).get(ScorecardViewModel::class.java)
-    }
-
-    private val monitorKey: String by lazy {
-        intent.getStringExtra(MONITOR_KEY)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +57,7 @@ class ScorecardActivity : DuckDuckGoActivity() {
             it?.let { render(it) }
         })
 
-        repository.get(monitorKey).observe(this, Observer<PrivacyMonitor> {
+        repository.get(intent.tabId).observe(this, Observer<PrivacyMonitor> {
             viewModel.onPrivacyMonitorChanged(it)
         })
     }
@@ -106,11 +103,9 @@ class ScorecardActivity : DuckDuckGoActivity() {
 
     companion object {
 
-        private const val MONITOR_KEY = "MONITOR_KEY"
-
-        fun intent(context: Context, monitorKey: String): Intent {
+        fun intent(context: Context, tabId: String): Intent {
             val intent = Intent(context, ScorecardActivity::class.java)
-            intent.putExtra(MONITOR_KEY, monitorKey)
+            intent.tabId = tabId
             return intent
         }
     }

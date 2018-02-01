@@ -18,6 +18,7 @@ package com.duckduckgo.app.tabs;
 
 import android.arch.lifecycle.ViewModel
 
-class TabsViewModel : ViewModel() {
+class TabSwitcherViewModel : ViewModel() {
+
 
 }

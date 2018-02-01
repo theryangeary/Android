@@ -37,7 +37,7 @@ import com.duckduckgo.app.privacymonitor.db.NetworkLeaderboardEntry
 import com.duckduckgo.app.privacymonitor.model.PrivacyGrade
 import com.duckduckgo.app.privacymonitor.model.TermsOfService
 import com.duckduckgo.app.privacymonitor.model.improvedGrade
-import com.duckduckgo.app.privacymonitor.store.PrivacyMonitorRepository
+import com.duckduckgo.app.tabs.TabDataRepository
 import com.duckduckgo.app.privacymonitor.store.TermsOfServiceStore
 import com.duckduckgo.app.privacymonitor.ui.PrivacyDashboardActivity.Companion.RELOAD_RESULT_CODE
 import com.duckduckgo.app.settings.db.AppConfigurationDao
@@ -49,20 +49,19 @@ import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 class BrowserViewModel(
-        private val queryUrlConverter: OmnibarEntryConverter,
-        private val duckDuckGoUrlDetector: DuckDuckGoUrlDetector,
-        private val termsOfServiceStore: TermsOfServiceStore,
-        private val trackerNetworks: TrackerNetworks,
-        privacyMonitorRepository: PrivacyMonitorRepository,
-        private val networkLeaderboardDao: NetworkLeaderboardDao,
-        private val bookmarksDao: BookmarksDao,
-        private val autoCompleteApi: AutoCompleteApi,
-        private val appSettingsPreferencesStore: SettingsDataStore,
-        appConfigurationDao: AppConfigurationDao) : WebViewClientListener, ViewModel() {
+    private val queryUrlConverter: OmnibarEntryConverter,
+    private val duckDuckGoUrlDetector: DuckDuckGoUrlDetector,
+    private val termsOfServiceStore: TermsOfServiceStore,
+    private val trackerNetworks: TrackerNetworks,
+    private val tabRepository: TabDataRepository,
+    private val networkLeaderboardDao: NetworkLeaderboardDao,
+    private val bookmarksDao: BookmarksDao,
+    private val autoCompleteApi: AutoCompleteApi,
+    private val appSettingsPreferencesStore: SettingsDataStore,
+    appConfigurationDao: AppConfigurationDao) : WebViewClientListener, ViewModel() {
 
     data class ViewState(
             val isLoading: Boolean = false,
@@ -95,7 +94,6 @@ class BrowserViewModel(
     val privacyGrade: MutableLiveData<PrivacyGrade> = MutableLiveData()
     val url: SingleLiveEvent<String> = SingleLiveEvent()
     val command: SingleLiveEvent<Command> = SingleLiveEvent()
-    val monitorKey = UUID.randomUUID().toString()
 
     @VisibleForTesting
     val appConfigurationObserver: Observer<AppConfigurationEntity> = Observer { appConfiguration ->
@@ -108,14 +106,13 @@ class BrowserViewModel(
     private var appConfigurationDownloaded = false
     private val appConfigurationObservable = appConfigurationDao.appConfigurationStatus()
     private val autoCompletePublishSubject = PublishRelay.create<String>()
-    private val monitorLiveData = MutableLiveData<PrivacyMonitor>()
+    private lateinit var monitorLiveData: MutableLiveData<PrivacyMonitor>
     private var monitor: SiteMonitor? = null
 
     init {
         command.value = Command.ShowKeyboard
         viewState.value = ViewState(canAddBookmarks = false)
         appConfigurationObservable.observeForever(appConfigurationObserver)
-        privacyMonitorRepository.add(monitorKey, monitorLiveData)
         configureAutoComplete()
     }
 
@@ -136,7 +133,6 @@ class BrowserViewModel(
         viewState.value = currentViewState().copy(autoCompleteSearchResults = AutoCompleteResult(result.query, results))
     }
 
-
     @VisibleForTesting
     public override fun onCleared() {
         super.onCleared()
@@ -146,6 +142,10 @@ class BrowserViewModel(
     fun registerWebViewListener(browserWebViewClient: BrowserWebViewClient, browserChromeClient: BrowserChromeClient) {
         browserWebViewClient.webViewClientListener = this
         browserChromeClient.webViewClientListener = this
+    }
+
+    fun setTabId(tabId: String) {
+        monitorLiveData = tabRepository.get(tabId)
     }
 
     fun onUserSubmittedQuery(input: String) {
@@ -186,6 +186,11 @@ class BrowserViewModel(
     override fun loadingFinished() {
         Timber.v("Loading finished")
         viewState.value = currentViewState().copy(isLoading = false)
+    }
+
+    override fun titleReceived(title: String) {
+        monitor?.title = title
+        onSiteMonitorChanged()
     }
 
     @AnyThread
@@ -229,14 +234,10 @@ class BrowserViewModel(
 
     override fun trackerDetected(event: TrackingEvent) {
         if (event.documentUrl == monitor?.url) {
-            updateSiteMonitor(event)
+            monitor?.trackerDetected(event)
+            onSiteMonitorChanged()
         }
         updateNetworkLeaderboard(event)
-    }
-
-    private fun updateSiteMonitor(event: TrackingEvent) {
-        monitor?.trackerDetected(event)
-        onSiteMonitorChanged()
     }
 
     private fun updateNetworkLeaderboard(event: TrackingEvent) {

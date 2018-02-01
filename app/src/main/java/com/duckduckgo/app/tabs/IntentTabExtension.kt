@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 DuckDuckGo
+ * Copyright (c) 2018 DuckDuckGo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package com.duckduckgo.app.browser
+package com.duckduckgo.app.tabs
 
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import javax.inject.Inject
+import android.content.Intent
+import com.duckduckgo.app.tabs.Intent.Companion.TAB_ID_EXTRA
 
-
-class BrowserChromeClient @Inject constructor() : WebChromeClient() {
-
-    var webViewClientListener: WebViewClientListener? = null
-
-    override fun onProgressChanged(view: WebView, newProgress: Int) {
-        webViewClientListener?.progressChanged(newProgress)
-    }
-
-    override fun onReceivedTitle(view: WebView, title: String) {
-        webViewClientListener?.titleReceived(title)
+class Intent {
+    companion object {
+        const val TAB_ID_EXTRA: String = "TAB_ID_EXTRA"
     }
 }
+
+var Intent.tabId: String
+    get() = getStringExtra(TAB_ID_EXTRA)
+    set(value) {
+        putExtra(TAB_ID_EXTRA, value)
+    }

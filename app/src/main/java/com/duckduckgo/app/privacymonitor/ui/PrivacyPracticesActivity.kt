@@ -30,7 +30,8 @@ import com.duckduckgo.app.home.HomeActivity
 import com.duckduckgo.app.privacymonitor.PrivacyMonitor
 import com.duckduckgo.app.privacymonitor.renderer.banner
 import com.duckduckgo.app.privacymonitor.renderer.text
-import com.duckduckgo.app.privacymonitor.store.PrivacyMonitorRepository
+import com.duckduckgo.app.tabs.TabDataRepository
+import com.duckduckgo.app.tabs.tabId
 import kotlinx.android.synthetic.main.content_privacy_practices.*
 import kotlinx.android.synthetic.main.include_toolbar.*
 import javax.inject.Inject
@@ -38,16 +39,12 @@ import javax.inject.Inject
 class PrivacyPracticesActivity : DuckDuckGoActivity() {
 
     @Inject lateinit var viewModelFactory: ViewModelFactory
-    @Inject lateinit var repository: PrivacyMonitorRepository
+    @Inject lateinit var repository: TabDataRepository
 
     private val practicesAdapter = PrivacyPracticesAdapter()
 
     private val viewModel: PrivacyPracticesViewModel by lazy {
         ViewModelProviders.of(this, viewModelFactory).get(PrivacyPracticesViewModel::class.java)
-    }
-
-    private val monitorKey: String by lazy {
-        intent.getStringExtra(MONITOR_KEY)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +57,7 @@ class PrivacyPracticesActivity : DuckDuckGoActivity() {
             it?.let { render(it) }
         })
 
-        repository.get(monitorKey).observe(this, Observer<PrivacyMonitor> {
+        repository.get(intent.tabId).observe(this, Observer<PrivacyMonitor> {
             viewModel.onPrivacyMonitorChanged(it)
         })
     }
@@ -89,13 +86,12 @@ class PrivacyPracticesActivity : DuckDuckGoActivity() {
 
     companion object {
 
-        private const val MONITOR_KEY = "MONITOR_KEY"
-
-        fun intent(context: Context, monitorKey: String): Intent {
+        fun intent(context: Context, tabId: String): Intent {
             val intent = Intent(context, PrivacyPracticesActivity::class.java)
-            intent.putExtra(MONITOR_KEY, monitorKey)
+            intent.tabId = tabId
             return intent
         }
+
     }
 
 }

@@ -31,26 +31,17 @@ class SiteMonitor(override val url: String,
                   override val termsOfService: TermsOfService,
                   private val trackerNetworks: TrackerNetworks) : PrivacyMonitor {
 
-    override var hasHttpResources = false
-
-    override val trackingEvents = CopyOnWriteArrayList<TrackingEvent>()
-
     override val uri: Uri?
         get() = Uri.parse(url)
+
+    override var title: String? = null
 
     override val https: HttpsStatus
         get() = httpsStatus()
 
-    private fun httpsStatus(): HttpsStatus {
+    override var hasHttpResources = false
 
-        val uri = uri ?: return HttpsStatus.NONE
-
-        if (uri.isHttps) {
-            return if (hasHttpResources) HttpsStatus.MIXED else HttpsStatus.SECURE
-        }
-
-        return HttpsStatus.NONE
-    }
+    override val trackingEvents = CopyOnWriteArrayList<TrackingEvent>()
 
     override val memberNetwork: TrackerNetwork? by lazy {
         trackerNetworks.network(url)
@@ -86,6 +77,17 @@ class SiteMonitor(override val url: String,
 
     override val allTrackersBlocked: Boolean
         get() = trackingEvents.none { !it.blocked }
+
+    private fun httpsStatus(): HttpsStatus {
+
+        val uri = uri ?: return HttpsStatus.NONE
+
+        if (uri.isHttps) {
+            return if (hasHttpResources) HttpsStatus.MIXED else HttpsStatus.SECURE
+        }
+
+        return HttpsStatus.NONE
+    }
 
     override fun trackerDetected(event: TrackingEvent) {
         trackingEvents.add(event)

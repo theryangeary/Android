@@ -27,7 +27,8 @@ import com.duckduckgo.app.global.DuckDuckGoActivity
 import com.duckduckgo.app.global.ViewModelFactory
 import com.duckduckgo.app.privacymonitor.PrivacyMonitor
 import com.duckduckgo.app.privacymonitor.renderer.TrackersRenderer
-import com.duckduckgo.app.privacymonitor.store.PrivacyMonitorRepository
+import com.duckduckgo.app.tabs.TabDataRepository
+import com.duckduckgo.app.tabs.tabId
 import kotlinx.android.synthetic.main.content_tracker_networks.*
 import kotlinx.android.synthetic.main.include_toolbar.*
 import javax.inject.Inject
@@ -35,16 +36,12 @@ import javax.inject.Inject
 class TrackerNetworksActivity : DuckDuckGoActivity() {
 
     @Inject lateinit var viewModelFactory: ViewModelFactory
-    @Inject lateinit var repository: PrivacyMonitorRepository
+    @Inject lateinit var repository: TabDataRepository
     private val trackersRenderer = TrackersRenderer()
     private val networksAdapter = TrackerNetworksAdapter()
 
     private val viewModel: TrackerNetworksViewModel by lazy {
         ViewModelProviders.of(this, viewModelFactory).get(TrackerNetworksViewModel::class.java)
-    }
-
-    private val monitorKey: String by lazy {
-        intent.getStringExtra(MONITOR_KEY)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +54,7 @@ class TrackerNetworksActivity : DuckDuckGoActivity() {
             it?.let { render(it) }
         })
 
-        repository.get(monitorKey).observe(this, Observer<PrivacyMonitor> {
+        repository.get(intent.tabId).observe(this, Observer<PrivacyMonitor> {
             viewModel.onPrivacyMonitorChanged(it)
         })
     }
@@ -80,11 +77,10 @@ class TrackerNetworksActivity : DuckDuckGoActivity() {
     }
 
     companion object {
-        private const val MONITOR_KEY = "MONITOR_KEY"
 
-        fun intent(context: Context, monitorKey: String): Intent {
+        fun intent(context: Context, tabId: String): Intent {
             val intent = Intent(context, TrackerNetworksActivity::class.java)
-            intent.putExtra(MONITOR_KEY, monitorKey)
+            intent.tabId = tabId
             return intent
 
         }

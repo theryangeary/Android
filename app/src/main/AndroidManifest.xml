@@ -32,6 +32,7 @@
         <activity
             android:name="com.duckduckgo.app.home.HomeActivity"
             android:alwaysRetainTaskState="true"
+            android:persistableMode="persistAcrossReboots"
             android:label="@string/appName">
 
             <!-- Allows app to become default browser -->
@@ -64,11 +65,13 @@
 
         <activity
             android:name=".BrowserActivity"
+            android:alwaysRetainTaskState="true"
+            android:persistableMode="persistAcrossReboots"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName="com.duckduckgo.app.home.HomeActivity" />
 
         <activity
-            android:name="com.duckduckgo.app.tabs.TabsActivity"
+            android:name="com.duckduckgo.app.tabs.TabSwitcherActivity"
             android:label="@string/tabActivityTitle" />
 
         <activity

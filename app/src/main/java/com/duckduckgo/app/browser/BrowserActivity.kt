@@ -52,7 +52,8 @@ import com.duckduckgo.app.privacymonitor.model.PrivacyGrade
 import com.duckduckgo.app.privacymonitor.renderer.icon
 import com.duckduckgo.app.privacymonitor.ui.PrivacyDashboardActivity
 import com.duckduckgo.app.settings.SettingsActivity
-import com.duckduckgo.app.tabs.TabsActivity
+import com.duckduckgo.app.tabs.TabSwitcherActivity
+import com.duckduckgo.app.tabs.tabId
 import kotlinx.android.synthetic.main.activity_browser.*
 import kotlinx.android.synthetic.main.popup_window_browser_menu.view.*
 import org.jetbrains.anko.doAsync
@@ -77,7 +78,9 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener {
     private var acceptingRenderUpdates = true
 
     private val viewModel: BrowserViewModel by lazy {
-        ViewModelProviders.of(this, viewModelFactory).get(BrowserViewModel::class.java)
+        val model = ViewModelProviders.of(this, viewModelFactory).get(BrowserViewModel::class.java)
+        model.setTabId(intent.tabId)
+        model
     }
 
     private val privacyGradeMenu: MenuItem?
@@ -169,7 +172,7 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener {
                 startActivity(intent)
             }
             Command.ShowKeyboard -> {
-                omnibarTextInput.postDelayed({omnibarTextInput.showKeyboard()}, 300)
+                omnibarTextInput.postDelayed({ omnibarTextInput.showKeyboard() }, 300)
             }
             Command.HideKeyboard -> {
                 omnibarTextInput.hideKeyboard()
@@ -184,12 +187,12 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener {
     private fun configureAutoComplete() {
         autoCompleteSuggestionsList.layoutManager = LinearLayoutManager(this)
         autoCompleteSuggestionsAdapter = BrowserAutoCompleteSuggestionsAdapter(
-                immediateSearchClickListener = {
-                    userEnteredQuery(it.phrase)
-                },
-                editableSearchClickListener = {
-                    viewModel.onUserSelectedToEditQuery(it.phrase)
-                }
+            immediateSearchClickListener = {
+                userEnteredQuery(it.phrase)
+            },
+            editableSearchClickListener = {
+                viewModel.onUserSelectedToEditQuery(it.phrase)
+            }
         )
         autoCompleteSuggestionsList.adapter = autoCompleteSuggestionsAdapter
     }
@@ -283,8 +286,8 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener {
 
             override fun afterTextChanged(editable: Editable) {
                 viewModel.onOmnibarInputStateChanged(
-                        omnibarTextInput.text.toString(),
-                        omnibarTextInput.hasFocus()
+                    omnibarTextInput.text.toString(),
+                    omnibarTextInput.hasFocus()
                 )
             }
         })
@@ -394,14 +397,14 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener {
     }
 
     private fun launchPrivacyDashboard() {
-        startActivityForResult(PrivacyDashboardActivity.intent(this, viewModel.monitorKey), DASHBOARD_REQUEST_CODE)
+        startActivityForResult(PrivacyDashboardActivity.intent(this, intent.tabId), DASHBOARD_REQUEST_CODE)
     }
 
     private fun launchFire() {
         FireDialog(context = this,
-                clearStarted = { finishActivityAnimated() },
-                clearComplete = { applicationContext.toast(R.string.fireDataCleared) },
-                cookieManager = cookieManagerProvider.get()
+            clearStarted = { finishActivityAnimated() },
+            clearComplete = { applicationContext.toast(R.string.fireDataCleared) },
+            cookieManager = cookieManagerProvider.get()
         ).show()
     }
 
@@ -412,19 +415,19 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener {
     private fun addBookmark() {
 
         val addBookmarkDialog = BookmarkAddEditDialogFragment.createDialogCreationMode(
-                existingTitle = webView.title,
-                existingUrl = webView.url
+            existingTitle = webView.title,
+            existingUrl = webView.url
         )
 
         addBookmarkDialog.show(supportFragmentManager, ADD_BOOKMARK_FRAGMENT_TAG)
     }
 
     private fun launchTabs() {
-        startActivity(TabsActivity.intent(this))
+        startActivity(TabSwitcherActivity.intent(this))
     }
 
     private fun launchNewTab() {
-        startActivity(HomeActivity.launchNewTab(this))
+        startActivity(HomeActivity.intentSkipHome(this))
     }
 
     private fun launchSettings() {
@@ -436,7 +439,7 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == DASHBOARD_REQUEST_CODE ) {
+        if (requestCode == DASHBOARD_REQUEST_CODE) {
             viewModel.receivedDashboardResult(resultCode)
         }
     }
@@ -482,15 +485,16 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener {
 
     companion object {
 
-        fun intent(context: Context, queryExtra: String? = null): Intent {
+        private const val QUERY_EXTRA = "QUERY_EXTRA"
+        private const val ADD_BOOKMARK_FRAGMENT_TAG = "ADD_BOOKMARK"
+        private const val DASHBOARD_REQUEST_CODE = 100
+
+        fun intent(context: Context, tabId: String, queryExtra: String? = null): Intent {
             val intent = Intent(context, BrowserActivity::class.java)
+            intent.tabId = tabId
             intent.putExtra(QUERY_EXTRA, queryExtra)
             return intent
         }
-
-        private const val ADD_BOOKMARK_FRAGMENT_TAG = "ADD_BOOKMARK"
-        private const val QUERY_EXTRA = "QUERY_EXTRA"
-        private const val DASHBOARD_REQUEST_CODE = 100
     }
 
 }

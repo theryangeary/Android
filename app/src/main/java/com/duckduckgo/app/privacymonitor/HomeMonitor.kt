@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 DuckDuckGo
+ * Copyright (c) 2018 DuckDuckGo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,23 +22,23 @@ import com.duckduckgo.app.privacymonitor.model.TermsOfService
 import com.duckduckgo.app.trackerdetection.model.TrackerNetwork
 import com.duckduckgo.app.trackerdetection.model.TrackingEvent
 
-interface PrivacyMonitor {
+class HomeMonitor : PrivacyMonitor {
 
-    val url: String
-    val uri: Uri?
-    var title: String?
-    val https: HttpsStatus
-    val termsOfService: TermsOfService
-    val memberNetwork: TrackerNetwork?
-    val trackingEvents: List<TrackingEvent>
-    val trackerCount: Int
-    val distinctTrackersByNetwork: Map<String, List<TrackingEvent>>
-    val networkCount: Int
-    val majorNetworkCount: Int
-    val hasTrackerFromMajorNetwork: Boolean
-    val allTrackersBlocked: Boolean
-    val hasObscureTracker: Boolean
-    var hasHttpResources: Boolean
-    fun trackerDetected(event: TrackingEvent)
+    override val url = "http://duckduckgo.com"
+    override val uri: Uri? = null
+    override var title: String? = "DuckDuckGo"
+    override val https = HttpsStatus.SECURE
+    override val termsOfService: TermsOfService = TermsOfService(classification = "A")
+    override val memberNetwork: TrackerNetwork? = null
+    override val trackingEvents = ArrayList<TrackingEvent>()
+    override val trackerCount = 0
+    override val distinctTrackersByNetwork = HashMap<String, List<TrackingEvent>>()
+    override val networkCount = 0
+    override val majorNetworkCount = 0
+    override val hasTrackerFromMajorNetwork = false
+    override val allTrackersBlocked = true
+    override val hasObscureTracker = false
+    override var hasHttpResources = false
+    override fun trackerDetected(event: TrackingEvent) {}
 
 }

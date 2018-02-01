@@ -30,19 +30,26 @@ import com.duckduckgo.app.browser.R
 import com.duckduckgo.app.global.DuckDuckGoActivity
 import com.duckduckgo.app.global.intentText
 import com.duckduckgo.app.global.view.FireDialog
+import com.duckduckgo.app.privacymonitor.HomeMonitor
 import com.duckduckgo.app.settings.SettingsActivity
+import com.duckduckgo.app.tabs.TabDataRepository
+import com.duckduckgo.app.tabs.TabSwitcherActivity
+import com.duckduckgo.app.tabs.tabId
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.content_home.*
 import kotlinx.android.synthetic.main.popup_window_browser_menu.view.*
 import org.jetbrains.anko.toast
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Provider
-import com.duckduckgo.app.tabs.TabsActivity
 
 
 class HomeActivity : DuckDuckGoActivity() {
 
     private lateinit var popupMenu: BrowserPopupMenu
+
+    @Inject
+    lateinit var tabRepository: TabDataRepository
 
     @Inject
     lateinit var cookieManagerProvider: Provider<CookieManager>
@@ -58,6 +65,12 @@ class HomeActivity : DuckDuckGoActivity() {
         if (savedInstanceState == null) {
             consumeIntentAction(intent)
         }
+    }
+
+    override fun onResume() {
+        val monitorLiveData = tabRepository.get(intent.tabId)
+        monitorLiveData.value = HomeMonitor()
+        super.onResume()
     }
 
     private fun configureToolbar() {
@@ -85,7 +98,7 @@ class HomeActivity : DuckDuckGoActivity() {
         if (intent == null) return
 
         if (shouldSkipHomeActivity(intent)) {
-            startActivity(BrowserActivity.intent(this))
+            startActivity(BrowserActivity.intent(this, intent.tabId))
             return
         }
 
@@ -93,13 +106,17 @@ class HomeActivity : DuckDuckGoActivity() {
         startActivity(BrowserActivity.intent(this, query))
     }
 
-    private fun shouldSkipHomeActivity(intent: Intent) : Boolean {
-        return intent.hasExtra(KEY_SKIP_HOME) || intent.action == Intent.ACTION_ASSIST
+    private fun shouldSkipHomeActivity(intent: Intent): Boolean {
+        return intent.hasExtra(SKIP_HOME_EXTRA) || intent.action == Intent.ACTION_ASSIST
     }
 
     private fun showSearchActivity() {
-        val intent = BrowserActivity.intent(this)
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, searchInputBox, getString(R.string.transition_url_input))
+        val intent = BrowserActivity.intent(this, intent.tabId)
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+            this,
+            searchInputBox,
+            getString(R.string.transition_url_input)
+        )
         startActivity(intent, options.toBundle())
     }
 
@@ -134,7 +151,7 @@ class HomeActivity : DuckDuckGoActivity() {
     }
 
     private fun launchTabs() {
-        startActivity(TabsActivity.intent(this))
+        startActivity(TabSwitcherActivity.intent(this))
     }
 
     private fun launchBookmarks() {
@@ -152,8 +169,11 @@ class HomeActivity : DuckDuckGoActivity() {
 
     companion object {
 
+        const val SKIP_HOME_EXTRA: String = "SKIP_HOME_EXTRA"
+
         fun intent(context: Context, query: String? = null): Intent {
             val intent = Intent(context, HomeActivity::class.java)
+            intent.tabId = generateTabId()
             intent.flags = Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
             query?.let {
                 intent.putExtra(Intent.EXTRA_TEXT, query)
@@ -161,12 +181,17 @@ class HomeActivity : DuckDuckGoActivity() {
             return intent
         }
 
-        fun launchNewTab(context: Context) : Intent {
+        fun intentSkipHome(context: Context): Intent {
             val intent = intent(context)
-            intent.putExtra(KEY_SKIP_HOME, true)
+            intent.putExtra(SKIP_HOME_EXTRA, true)
             return intent
         }
 
-        const val KEY_SKIP_HOME: String = "KEY_SKIP_HOME"
+        private fun generateTabId(): String {
+            return UUID.randomUUID().toString()
+        }
+
     }
 }
+
+
