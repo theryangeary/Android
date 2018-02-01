@@ -18,8 +18,12 @@ package com.duckduckgo.app.di
 
 
 import android.app.Application
+import com.duckduckgo.app.surrogates.di.ResourceSurrogateModule
 import com.duckduckgo.app.browser.autoComplete.BrowserAutoCompleteModule
+import com.duckduckgo.app.browser.di.BrowserModule
 import com.duckduckgo.app.global.DuckDuckGoApplication
+import com.duckduckgo.app.httpsupgrade.di.HttpsUpgraderModule
+import com.duckduckgo.app.trackerdetection.di.TrackerDetectionModule
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector
@@ -27,21 +31,22 @@ import dagger.android.support.AndroidSupportInjectionModule
 import javax.inject.Singleton
 
 @Singleton
-@Component(
-    modules = [
-        (ApplicationModule::class),
-        (JobsModule::class),
-        (AndroidBindingModule::class),
-        (AndroidSupportInjectionModule::class),
-        (NetworkModule::class),
-        (StoreModule::class),
-        (DatabaseModule::class),
-        (JsonModule::class),
-        (StringModule::class),
-        (BrowserModule::class),
-        (BrowserAutoCompleteModule::class)
-    ]
-)
+@Component(modules = [
+    (ApplicationModule::class),
+    (JobsModule::class),
+    (AndroidBindingModule::class),
+    (AndroidSupportInjectionModule::class),
+    (NetworkModule::class),
+    (StoreModule::class),
+    (DatabaseModule::class),
+    (JsonModule::class),
+    (StringModule::class),
+    (BrowserModule::class),
+    (BrowserAutoCompleteModule::class),
+    (HttpsUpgraderModule::class),
+    (ResourceSurrogateModule::class),
+    (TrackerDetectionModule::class)
+])
 interface AppComponent : AndroidInjector<DuckDuckGoApplication> {
 
     @Component.Builder
