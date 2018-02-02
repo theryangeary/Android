@@ -18,6 +18,7 @@ package com.duckduckgo.app.home
 
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.*
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.view.Menu
@@ -30,7 +31,8 @@ import com.duckduckgo.app.browser.R
 import com.duckduckgo.app.global.DuckDuckGoActivity
 import com.duckduckgo.app.global.intentText
 import com.duckduckgo.app.global.view.FireDialog
-import com.duckduckgo.app.privacymonitor.HomeMonitor
+import com.duckduckgo.app.privacymonitor.SiteMonitor
+import com.duckduckgo.app.privacymonitor.model.TermsOfService
 import com.duckduckgo.app.settings.SettingsActivity
 import com.duckduckgo.app.tabs.TabDataRepository
 import com.duckduckgo.app.tabs.TabSwitcherActivity
@@ -68,9 +70,8 @@ class HomeActivity : DuckDuckGoActivity() {
     }
 
     override fun onResume() {
-        val monitorLiveData = tabRepository.get(intent.tabId)
-        monitorLiveData.value = HomeMonitor()
         super.onResume()
+        configureLiveData()
     }
 
     private fun configureToolbar() {
@@ -88,9 +89,11 @@ class HomeActivity : DuckDuckGoActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        consumeIntentAction(intent)
+    private fun configureLiveData() {
+        val monitor = SiteMonitor(getString(R.string.baseUrl), TermsOfService(classification = "A"))
+        monitor.title = getString(R.string.homeTab)
+        val monitorLiveData = tabRepository.get(intent.tabId)
+        monitorLiveData.value = monitor
     }
 
     private fun consumeIntentAction(intent: Intent?) {
@@ -107,7 +110,7 @@ class HomeActivity : DuckDuckGoActivity() {
     }
 
     private fun shouldSkipHomeActivity(intent: Intent): Boolean {
-        return intent.hasExtra(SKIP_HOME_EXTRA) || intent.action == Intent.ACTION_ASSIST
+        return intent.hasExtra(SKIP_HOME_EXTRA) || intent.action == ACTION_ASSIST
     }
 
     private fun showSearchActivity() {
@@ -174,9 +177,9 @@ class HomeActivity : DuckDuckGoActivity() {
         fun intent(context: Context, query: String? = null): Intent {
             val intent = Intent(context, HomeActivity::class.java)
             intent.tabId = generateTabId()
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+            intent.flags = FLAG_ACTIVITY_NEW_DOCUMENT or FLAG_ACTIVITY_MULTIPLE_TASK or FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
             query?.let {
-                intent.putExtra(Intent.EXTRA_TEXT, query)
+                intent.putExtra(EXTRA_TEXT, query)
             }
             return intent
         }

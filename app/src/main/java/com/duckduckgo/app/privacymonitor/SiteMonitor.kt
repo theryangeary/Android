@@ -23,13 +23,12 @@ import com.duckduckgo.app.global.isHttps
 import com.duckduckgo.app.privacymonitor.model.HttpsStatus
 import com.duckduckgo.app.privacymonitor.model.TermsOfService
 import com.duckduckgo.app.trackerdetection.model.TrackerNetwork
-import com.duckduckgo.app.trackerdetection.model.TrackerNetworks
 import com.duckduckgo.app.trackerdetection.model.TrackingEvent
 import java.util.concurrent.CopyOnWriteArrayList
 
 class SiteMonitor(override val url: String,
                   override val termsOfService: TermsOfService,
-                  private val trackerNetworks: TrackerNetworks) : PrivacyMonitor {
+                  override val memberNetwork: TrackerNetwork? = null) : PrivacyMonitor {
 
     override val uri: Uri?
         get() = Uri.parse(url)
@@ -42,10 +41,6 @@ class SiteMonitor(override val url: String,
     override var hasHttpResources = false
 
     override val trackingEvents = CopyOnWriteArrayList<TrackingEvent>()
-
-    override val memberNetwork: TrackerNetwork? by lazy {
-        trackerNetworks.network(url)
-    }
 
     override val trackerCount: Int
         get() = trackingEvents.size

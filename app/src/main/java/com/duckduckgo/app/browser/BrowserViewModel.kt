@@ -228,7 +228,8 @@ class BrowserViewModel(
         viewState.value = newViewState
 
         val terms = termsOfServiceStore.retrieveTerms(url) ?: TermsOfService()
-        monitor = SiteMonitor(url, terms, trackerNetworks)
+        val memberNetwork = trackerNetworks.network(url)
+        monitor = SiteMonitor(url, terms, memberNetwork)
         onSiteMonitorChanged()
     }
 
