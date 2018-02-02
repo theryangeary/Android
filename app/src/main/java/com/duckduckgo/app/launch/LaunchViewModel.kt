@@ -14,31 +14,32 @@
  * limitations under the License.
  */
 
-package com.duckduckgo.app.onboarding.ui
+package com.duckduckgo.app.launch
 
-import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
+import com.duckduckgo.app.global.SingleLiveEvent
 import com.duckduckgo.app.onboarding.store.OnboardingStore
 
-class OnboardingViewModel(onboardingStore: OnboardingStore) : ViewModel() {
+class LaunchViewModel(private val onboardingStore: OnboardingStore) : ViewModel() {
 
-    data class ViewState(
-            val showHome: Boolean
-    )
+    val command: SingleLiveEvent<Command> = SingleLiveEvent()
 
-    val viewState = MutableLiveData<OnboardingViewModel.ViewState>()
+    sealed class Command {
+        object Onboarding : Command()
+        object Browser : Command()
+    }
 
     init {
-        viewState.value = OnboardingViewModel.ViewState(
-                showHome = !onboardingStore.shouldShow
-        )
-        onboardingStore.onboardingShown()
+        if (onboardingStore.shouldShow) {
+            command.value = Command.Onboarding
+        } else {
+            command.value = Command.Browser
+        }
     }
 
     fun onOnboardingDone() {
-        viewState.value = viewState.value?.copy(
-                showHome = true
-        )
+        onboardingStore.onboardingShown()
+        command.value = Command.Browser
     }
 
 }

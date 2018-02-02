@@ -20,25 +20,31 @@
             android:value="true" />
 
         <activity
-            android:name="com.duckduckgo.app.onboarding.ui.OnboardingActivity"
-            android:label="@string/appName">
+            android:name="com.duckduckgo.app.launch.LaunchActivity"
+            android:alwaysRetainTaskState="true"
+            android:label="@string/appName"
+            android:persistableMode="persistAcrossReboots">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity
+            android:name="com.duckduckgo.app.onboarding.ui.OnboardingActivity"
+            android:alwaysRetainTaskState="true"
+            android:label="@string/appName"
+            android:persistableMode="persistAcrossReboots" />
+
+        <activity
             android:name="com.duckduckgo.app.home.HomeActivity"
             android:alwaysRetainTaskState="true"
-            android:persistableMode="persistAcrossReboots"
-            android:label="@string/appName">
+            android:label="@string/appName"
+            android:persistableMode="persistAcrossReboots">
 
             <!-- Allows app to become default browser -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
 
@@ -49,9 +55,7 @@
             <!-- Allows apps to consume links and text shared from other apps e.g chrome -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="text/plain" />
             </intent-filter>
 
@@ -66,9 +70,9 @@
         <activity
             android:name=".BrowserActivity"
             android:alwaysRetainTaskState="true"
-            android:persistableMode="persistAcrossReboots"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName="com.duckduckgo.app.home.HomeActivity" />
+            android:parentActivityName="com.duckduckgo.app.home.HomeActivity"
+            android:persistableMode="persistAcrossReboots" />
 
         <activity
             android:name="com.duckduckgo.app.tabs.TabSwitcherActivity"
@@ -96,7 +100,7 @@
 
         <activity
             android:name="com.duckduckgo.app.settings.SettingsActivity"
-            android:label="@string/settingsActivityTitle"/>
+            android:label="@string/settingsActivityTitle" />
 
         <activity
             android:name="com.duckduckgo.app.about.AboutDuckDuckGoActivity"

@@ -39,6 +39,10 @@ class TabManager @Inject constructor(context: Context, private val repository: T
             return Tabs(current, tabs)
         }
 
+    fun mostRecent(): ActivityManager.AppTask? {
+        return tabTasks.lastOrNull()
+    }
+
     private val tabTasks
         get() = activityManager.appTasks
             .filter {

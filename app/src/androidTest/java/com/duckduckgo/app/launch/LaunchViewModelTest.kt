@@ -14,58 +14,70 @@
  * limitations under the License.
  */
 
-package com.duckduckgo.app.onboarding.ui
+package com.duckduckgo.app.launch
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule
 import android.arch.lifecycle.Observer
+import com.duckduckgo.app.launch.LaunchViewModel.Command.Browser
+import com.duckduckgo.app.launch.LaunchViewModel.Command.Onboarding
 import com.duckduckgo.app.onboarding.store.OnboardingStore
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito.any
 
 
-class OnboardingViewModelTest {
+class LaunchViewModelTest {
 
     @get:Rule
     @Suppress("unused")
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private var onboardingStore: OnboardingStore = mock()
-    private var viewStateObserver: Observer<OnboardingViewModel.ViewState> = mock()
+    private var mockCommandObserver: Observer<LaunchViewModel.Command> = mock()
 
-    private val testee: OnboardingViewModel by lazy {
-        val model = OnboardingViewModel(onboardingStore)
-        model.viewState.observeForever(viewStateObserver)
-        model
+    private val testee: LaunchViewModel by lazy {
+        LaunchViewModel(onboardingStore)
+    }
+
+    @After
+    fun after() {
+        testee.command.removeObserver(mockCommandObserver)
     }
 
     @Test
-    fun whenStartedThenStoreNotifiedThatOnboardingShown() {
-        testee
+    fun whenOnboardingShouldShownThenCommandIsOnboarding() {
+        whenever(onboardingStore.shouldShow).thenReturn(true)
+        testee.command.observeForever(mockCommandObserver)
+        verify(mockCommandObserver).onChanged(any(Onboarding::class.java))
+    }
+
+    @Test
+    fun whenOnboardingShouldNotShowThenCommandIsBrowser() {
+        whenever(onboardingStore.shouldShow).thenReturn(false)
+        testee.command.observeForever(mockCommandObserver)
+        verify(mockCommandObserver).onChanged(any(Browser::class.java))
+    }
+
+    @Test
+    fun whenOnboardingDoneThenStoreIsUpdated() {
+        testee.onOnboardingDone()
         verify(onboardingStore).onboardingShown()
     }
 
     @Test
-    fun whenOnboardingShouldShowThenShowHomeIsFalse() {
-        whenever(onboardingStore.shouldShow).thenReturn(true)
-        assertFalse(testee.viewState.value!!.showHome)
-    }
+    fun whenOnboardingDoneThenCommandIsHome() {
 
-    @Test
-    fun whenOnboardingShouldNotShowThenShowHomeIsTrue() {
-        whenever(onboardingStore.shouldShow).thenReturn(false)
-        assertTrue(testee.viewState.value!!.showHome)
-    }
-
-    @Test
-    fun whenOnboardingDoneThenShowHomeIsTrue() {
         whenever(onboardingStore.shouldShow).thenReturn(true)
+        testee.command.observeForever(mockCommandObserver)
+        verify(mockCommandObserver).onChanged(any(Onboarding::class.java))
+
         testee.onOnboardingDone()
-        assertTrue(testee.viewState.value!!.showHome)
+        verify(mockCommandObserver).onChanged(any(Browser::class.java))
     }
 
 }
