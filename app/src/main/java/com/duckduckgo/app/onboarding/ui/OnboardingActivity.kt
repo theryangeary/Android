@@ -82,7 +82,7 @@ class OnboardingActivity : DuckDuckGoActivity() {
 
     private fun showHome() {
         startActivity(HomeActivity.intent(this))
-        finish()
+        finishAndRemoveTask()
     }
 
     private fun configurePager() {
