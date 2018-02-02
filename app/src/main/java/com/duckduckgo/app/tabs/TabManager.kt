@@ -40,20 +40,15 @@ class TabManager @Inject constructor(context: Context, private val repository: T
         }
 
     private val tabTasks
-        get() = activityManager.appTasks.filter {
-            it.baseIntentActivity == HomeActivity::class.java.name
-        }
+        get() = activityManager.appTasks
+            .filter {
+                it.baseIntentActivity == HomeActivity::class.java.name
+            }.sortedBy {
+                it.taskInfo.persistentId
+            }
 
     fun selectTab(position: Int) {
-        val tasks = activityManager.appTasks
-        tasks[position].moveToFront()
-    }
-
-    fun load() {
-
-    }
-
-    fun persist() {
+        tabTasks[position].moveToFront()
     }
 
     val ActivityManager.AppTask.baseIntentActivity: String get() = taskInfo.baseIntent.component.className
