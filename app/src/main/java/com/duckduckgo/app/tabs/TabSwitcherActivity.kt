@@ -56,7 +56,7 @@ class TabSwitcherActivity : DuckDuckGoActivity(), TabSwitcherAdapter.OnItemClick
     private fun configureRecycler() {
         tabsRecycler.layoutManager = LinearLayoutManager(this)
         tabsRecycler.adapter = tabsAdapter
-        tabsAdapter.updateData(tabManager.tabs.list)
+        tabsAdapter.updateData(tabManager.tabs.all)
     }
 
     override fun onClicked(position: Int) {

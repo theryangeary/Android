@@ -19,7 +19,6 @@ package com.duckduckgo.app.tabs
 
 import android.arch.lifecycle.MutableLiveData
 import com.duckduckgo.app.privacymonitor.PrivacyMonitor
-import com.duckduckgo.app.privacymonitor.SiteMonitor
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -42,6 +41,16 @@ class TabDataRepository @Inject constructor() {
 
     private fun add(tabId: String, data: MutableLiveData<PrivacyMonitor>) {
         this.data[tabId] = data
+    }
+
+    // TODO: Clear element when tab closes
+    fun remove(tabId: String) {
+
+    }
+
+    // TODO: Clear all when fire pressed
+    fun clearAll() {
+
     }
 
 }

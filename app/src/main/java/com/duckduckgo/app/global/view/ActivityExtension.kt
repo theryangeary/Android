@@ -28,3 +28,10 @@ fun AppCompatActivity.launchExternalActivity(intent: Intent) {
         toast(R.string.no_compatible_third_party_app_installed)
     }
 }
+
+fun AppCompatActivity.minimizeApplication() {
+    val startMain = Intent(Intent.ACTION_MAIN)
+    startMain.addCategory(Intent.CATEGORY_HOME)
+    startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    startActivity(startMain)
+}

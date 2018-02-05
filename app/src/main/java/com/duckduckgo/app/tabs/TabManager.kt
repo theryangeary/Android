@@ -16,50 +16,83 @@
 
 package com.duckduckgo.app.tabs
 
+import android.app.Activity
 import android.app.ActivityManager
+import android.app.Application
+import android.arch.lifecycle.MutableLiveData
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Bundle
 import com.duckduckgo.app.home.HomeActivity
+import com.duckduckgo.app.privacymonitor.PrivacyMonitor
+import java.util.LinkedHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
 
 @Singleton
-class TabManager @Inject constructor(context: Context, private val repository: TabDataRepository) {
+class TabManager @Inject constructor(private val context: Context, private val repository: TabDataRepository): Application.ActivityLifecycleCallbacks {
+
 
     private val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    private val activities: LinkedHashMap<String, HomeActivity> = LinkedHashMap()
 
     val tabs: Tabs
         get() {
-            val current: Int? = null
             val tabs = ArrayList<Tab>()
-            for (task in tabTasks) {
-                val data = repository.get(task.tabId).value
+            for (activity in activities) {
+                val data = repository.get(activity.key).value
                 tabs.add(Tab(data?.url, data?.title))
             }
-            return Tabs(current, tabs)
+            return Tabs(tabs)
         }
 
-    fun mostRecent(): ActivityManager.AppTask? {
-        return tabTasks.lastOrNull()
+    fun showCurrentTab(): Boolean {
+        val current = tabTasks.lastOrNull() ?: return false
+        current.moveToFront()
+        return true
     }
 
     private val tabTasks
         get() = activityManager.appTasks
             .filter {
                 it.baseIntentActivity == HomeActivity::class.java.name
-            }.sortedBy {
-                it.taskInfo.persistentId
             }
 
     fun selectTab(position: Int) {
-        tabTasks[position].moveToFront()
+        val activity = activities.values.toList()[position]
+        activityManager.moveTaskToFront(activity.taskId, 0)
+    }
+
+    override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
+        if (activity is HomeActivity) {
+            activities.put(activity.intent.tabId, activity)
+        }
+    }
+
+    override fun onActivityStarted(activity: Activity?) {
+    }
+
+    override fun onActivityResumed(activity: Activity?) {
+    }
+
+    override fun onActivityPaused(activity: Activity?) {
+    }
+
+    override fun onActivitySaveInstanceState(activity: Activity?, outState: Bundle?) {
+    }
+
+    override fun onActivityStopped(activity: Activity?) {
+    }
+
+    override fun onActivityDestroyed(activity: Activity?) {
     }
 
     val ActivityManager.AppTask.baseIntentActivity: String get() = taskInfo.baseIntent.component.className
 
     val ActivityManager.AppTask.tabId: String get() = taskInfo.baseIntent.tabId
 
-    data class Tabs(var current: Int?, var list: List<Tab>)
+    data class Tabs(var all: List<Tab>)
 
     data class Tab(val url: String?, val title: String?)
 }

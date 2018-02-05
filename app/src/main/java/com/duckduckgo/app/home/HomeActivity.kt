@@ -31,6 +31,7 @@ import com.duckduckgo.app.browser.R
 import com.duckduckgo.app.global.DuckDuckGoActivity
 import com.duckduckgo.app.global.intentText
 import com.duckduckgo.app.global.view.FireDialog
+import com.duckduckgo.app.global.view.minimizeApplication
 import com.duckduckgo.app.privacymonitor.SiteMonitor
 import com.duckduckgo.app.privacymonitor.model.TermsOfService
 import com.duckduckgo.app.settings.SettingsActivity
@@ -165,6 +166,10 @@ class HomeActivity : DuckDuckGoActivity() {
         startActivity(SettingsActivity.intent(this))
     }
 
+    override fun onBackPressed() {
+        minimizeApplication()
+    }
+
     override fun onDestroy() {
         popupMenu.dismiss()
         super.onDestroy()
@@ -177,7 +182,7 @@ class HomeActivity : DuckDuckGoActivity() {
         fun intent(context: Context, query: String? = null): Intent {
             val intent = Intent(context, HomeActivity::class.java)
             intent.tabId = generateTabId()
-            intent.flags = FLAG_ACTIVITY_NEW_DOCUMENT or FLAG_ACTIVITY_MULTIPLE_TASK or FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+            intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_MULTIPLE_TASK
             query?.let {
                 intent.putExtra(EXTRA_TEXT, query)
             }

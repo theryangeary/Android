@@ -24,6 +24,7 @@ import com.duckduckgo.app.browser.BuildConfig
 import com.duckduckgo.app.di.DaggerAppComponent
 import com.duckduckgo.app.job.AppConfigurationSyncer
 import com.duckduckgo.app.migration.LegacyMigration
+import com.duckduckgo.app.tabs.TabManager
 import com.duckduckgo.app.trackerdetection.TrackerDataLoader
 import com.squareup.leakcanary.LeakCanary
 import dagger.android.AndroidInjector
@@ -42,6 +43,9 @@ class DuckDuckGoApplication : HasActivityInjector, HasServiceInjector, Applicati
 
     @Inject
     lateinit var serviceInjector: DispatchingAndroidInjector<Service>
+
+    @Inject
+    lateinit var tabManager: TabManager
 
     @Inject
     lateinit var crashReportingInitializer: CrashReportingInitializer
@@ -70,6 +74,7 @@ class DuckDuckGoApplication : HasActivityInjector, HasServiceInjector, Applicati
         loadTrackerData()
         configureDataDownloader()
 
+        registerActivityLifecycleCallbacks(tabManager) //TODO unregister
         migrateLegacyDb()
     }
 

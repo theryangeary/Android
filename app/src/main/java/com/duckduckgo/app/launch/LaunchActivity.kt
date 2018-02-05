@@ -71,13 +71,10 @@ class LaunchActivity : DuckDuckGoActivity() {
     }
 
     private fun showBrowser() {
-        val recent = tabManager.mostRecent()
-        if (recent != null) {
-            recent.moveToFront()
-        } else {
+        if (!tabManager.showCurrentTab()) {
             startActivity(HomeActivity.intent(this))
         }
-        finishAndRemoveTask()
+        finish()
     }
 
     companion object {
