@@ -135,13 +135,6 @@ class BrowserViewModelTest {
     }
 
     @Test
-    fun whenSubmittedQueryHasWhitespaceItIsTrimmed() {
-        testee.onUserSubmittedQuery(" nytimes.com ")
-        verify(mockOmnibarConverter).isWebUrl("nytimes.com")
-        assertEquals("nytimes.com", testee.viewState.value!!.omnibarText)
-    }
-
-    @Test
     fun whenUrlPresentThenAddBookmarkButtonEnabled() {
         testee.urlChanged("www.example.com")
         assertTrue(testee.viewState.value!!.canAddBookmarks)

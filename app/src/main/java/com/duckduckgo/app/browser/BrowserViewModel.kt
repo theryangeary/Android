@@ -155,11 +155,10 @@ class BrowserViewModel(
 
         command.value = Command.HideKeyboard
 
-        val trimmedInput = input.trim()
-        url.value = buildUrl(trimmedInput)
+        url.value = buildUrl(input)
         viewState.value = currentViewState().copy(
                 showClearButton = false,
-                omnibarText = trimmedInput,
+                omnibarText = input,
                 showAutoCompleteSuggestions = false,
                 autoCompleteSearchResults = AutoCompleteResult("", emptyList()))
     }
