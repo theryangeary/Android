@@ -17,6 +17,7 @@
 package com.duckduckgo.app.browser
 
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.animation.LayoutTransition.CHANGING
 import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.app.DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
@@ -46,6 +47,7 @@ import android.webkit.WebView
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.view.updatePaddingRelative
 import com.duckduckgo.app.bookmarks.ui.BookmarkAddEditDialogFragment
 import com.duckduckgo.app.bookmarks.ui.BookmarkAddEditDialogFragment.BookmarkDialogCreationListener
 import com.duckduckgo.app.bookmarks.ui.BookmarksActivity
@@ -132,6 +134,7 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener, We
         configureOmnibarTextInput()
         configureFindInPage()
         configureAutoComplete()
+        configureKeyboardDetection()
 
         if (savedInstanceState == null) {
             consumeSharedQuery(intent)
@@ -374,14 +377,14 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener, We
     private fun showClearButton() {
         omnibarTextInput.post {
             clearOmnibarInputButton.show()
-            omnibarTextInput.updatePadding(paddingEnd = 40.toPx())
+            omnibarTextInput.updatePaddingRelative(end = 40.toPx())
         }
     }
 
     private fun hideClearButton() {
         omnibarTextInput.post {
             clearOmnibarInputButton.hide()
-            omnibarTextInput.updatePadding(paddingEnd = 10.toPx())
+            omnibarTextInput.updatePaddingRelative(end = 10.toPx())
         }
     }
 
@@ -695,6 +698,21 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener, We
     private fun hideKeyboard() {
         omnibarTextInput.hideKeyboard()
         focusDummy.requestFocus()
+    }
+
+    private fun configureKeyboardDetection() {
+
+        logoParent.layoutTransition.enableTransitionType(CHANGING)
+
+        keyboardAwareContainer.listener = object : KeyboardAwareLayout.OnKeyboardStateChangeListener {
+            override fun onKeyboardShown() {
+                Timber.e("keyboard shown")
+            }
+
+            override fun onKeyboardHidden() {
+                Timber.e("keyboard hidden")
+            }
+        }
     }
 
     private data class PendingFileDownload(
