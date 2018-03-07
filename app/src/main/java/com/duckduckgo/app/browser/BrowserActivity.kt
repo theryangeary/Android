@@ -698,18 +698,7 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener, We
     }
 
     private fun configureKeyboardDetection() {
-
         logoParent.layoutTransition.enableTransitionType(CHANGING)
-
-        keyboardAwareContainer.listener = object : KeyboardAwareLayout.OnKeyboardStateChangeListener {
-            override fun onKeyboardShown() {
-                Timber.e("keyboard shown")
-            }
-
-            override fun onKeyboardHidden() {
-                Timber.e("keyboard hidden")
-            }
-        }
     }
 
     private data class PendingFileDownload(

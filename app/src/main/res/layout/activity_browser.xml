@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<com.duckduckgo.app.browser.KeyboardAwareLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/keyboardAwareContainer"
@@ -189,5 +189,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-</com.duckduckgo.app.browser.KeyboardAwareLayout>
+</android.support.constraint.ConstraintLayout>
 
