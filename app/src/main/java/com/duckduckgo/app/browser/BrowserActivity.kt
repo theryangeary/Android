@@ -259,7 +259,7 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener, We
         }
     }
 
-    private fun shouldClearActivityState(intent: Intent?) : Boolean{
+    private fun shouldClearActivityState(intent: Intent?): Boolean {
         if (intent == null) return false
 
         return intent.getBooleanExtra(REPLACE_EXISTING_SEARCH_EXTRA, false) || intent.action == Intent.ACTION_ASSIST
@@ -657,11 +657,8 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener, We
     }
 
     private fun resetActivityState() {
-        omnibarTextInput.text.clear()
-        viewModel.resetView()
-        destroyWebView()
-        configureWebView()
-        omnibarTextInput.postDelayed({omnibarTextInput.showKeyboard()}, 300)
+        finish()
+        startActivity(BrowserActivity.intent(this))
     }
 
     private fun destroyWebView() {
