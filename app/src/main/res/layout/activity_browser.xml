@@ -34,6 +34,7 @@
             android:id="@+id/logoParent"
             android:layout_width="match_parent"
             android:animateLayoutChanges="true"
+            android:clipChildren="false"
             android:layout_height="match_parent">
 
 
