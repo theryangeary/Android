@@ -651,7 +651,13 @@ class BrowserActivity : DuckDuckGoActivity(), BookmarkDialogCreationListener, We
     override fun onBackPressed() {
         when {
             webView?.canGoBack() == true -> webView?.goBack()
-            webView?.visibility == VISIBLE -> resetActivityState()
+            webView?.visibility == VISIBLE -> {
+                omnibarTextInput.text.clear()
+                viewModel.resetView()
+                destroyWebView()
+                configureWebView()
+                omnibarTextInput.postDelayed({omnibarTextInput.showKeyboard()}, 300)
+            }
             else -> super.onBackPressed()
         }
     }
