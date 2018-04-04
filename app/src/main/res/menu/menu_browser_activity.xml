@@ -24,17 +24,27 @@
         android:visible="false"
         app:showAsAction="ifRoom" />
 
-    <item
+    <!---<item
         android:id="@+id/fire"
         android:icon="@drawable/icon_fire"
         android:title="@string/fireMenu"
         android:visible="false"
+        app:showAsAction="ifRoom" />-->
+    <item
+      android:id="@+id/back"
+        android:icon="@drawable/ic_arrow_back_24px"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/tabs"
+        android:icon="@drawable/ic_tabs_24px"
+        app:showAsAction="ifRoom" />        
 
     <item
         android:id="@+id/browserPopup"
         android:icon="@drawable/ic_overflow_24px"
         android:title="@string/browserPopupMenu"
         app:showAsAction="ifRoom" />
+
 
 </menu>

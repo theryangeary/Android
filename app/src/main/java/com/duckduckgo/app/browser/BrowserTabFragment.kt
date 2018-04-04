@@ -163,10 +163,10 @@ class BrowserTabFragment : Fragment(), FindListener {
         popupMenu = BrowserPopupMenu(layoutInflater)
         val view = popupMenu.contentView
         popupMenu.apply {
+            onMenuItemClicked(view.firePopupMenuItem) { browserActivity?.launchFire() }
             onMenuItemClicked(view.forwardPopupMenuItem) { webView?.goForward() }
             onMenuItemClicked(view.backPopupMenuItem) { webView?.goBack() }
             onMenuItemClicked(view.refreshPopupMenuItem) { webView?.reload() }
-            onMenuItemClicked(view.tabsMenuItem) { browserActivity?.launchTabSwitcher() }
             onMenuItemClicked(view.newTabPopupMenuItem) { browserActivity?.launchNewTab() }
             onMenuItemClicked(view.bookmarksPopupMenuItem) { browserActivity?.launchBookmarks() }
             onMenuItemClicked(view.addBookmarksPopupMenuItem) { addBookmark() }
@@ -437,13 +437,23 @@ class BrowserTabFragment : Fragment(), FindListener {
                     browserActivity?.launchPrivacyDashboard()
                     return@setOnMenuItemClickListener true
                 }
-                R.id.fire -> {
+                /*R.id.fire -> {
                     browserActivity?.launchFire()
+                    return@setOnMenuItemClickListener true
+                }*/
+                R.id.back -> {
+                    hideKeyboardImmediately()
+                    webView?.goBack()
                     return@setOnMenuItemClickListener true
                 }
                 R.id.browserPopup -> {
                     hideKeyboardImmediately()
                     launchPopupMenu()
+                    return@setOnMenuItemClickListener true
+                }
+                R.id.tabs -> {
+                    hideKeyboardImmediately()
+                    browserActivity?.launchTabSwitcher()                      
                     return@setOnMenuItemClickListener true
                 }
                 else -> return@setOnMenuItemClickListener false

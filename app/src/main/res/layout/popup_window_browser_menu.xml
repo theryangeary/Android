@@ -31,6 +31,14 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageButton
+            android:id="@+id/firePopupMenuItem"
+            style="@style/BrowserIconMenuItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/icon_fire" />
+
+        <ImageButton
             android:id="@+id/backPopupMenuItem"
             style="@style/BrowserIconMenuItem"
             android:layout_width="wrap_content"
@@ -56,15 +64,6 @@
             android:layout_weight="1"
             android:contentDescription="@string/refresh"
             android:src="@drawable/ic_refresh_24px" />
-
-        <ImageButton
-            android:id="@+id/tabsMenuItem"
-            style="@style/BrowserIconMenuItem"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:contentDescription="@string/tabsMenuItem"
-            android:src="@drawable/ic_tabs_24px" />
 
     </LinearLayout>
 
