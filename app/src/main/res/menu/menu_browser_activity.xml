@@ -30,10 +30,6 @@
         android:title="@string/fireMenu"
         android:visible="false"
         app:showAsAction="ifRoom" />-->
-    <item
-      android:id="@+id/back"
-        android:icon="@drawable/ic_arrow_back_24px"
-        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/tabs"

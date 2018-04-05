@@ -441,11 +441,6 @@ class BrowserTabFragment : Fragment(), FindListener {
                     browserActivity?.launchFire()
                     return@setOnMenuItemClickListener true
                 }*/
-                R.id.back -> {
-                    hideKeyboardImmediately()
-                    webView?.goBack()
-                    return@setOnMenuItemClickListener true
-                }
                 R.id.browserPopup -> {
                     hideKeyboardImmediately()
                     launchPopupMenu()
